@@ -45,3 +45,49 @@ def test_adicionar_imovel():
     mock_conn.commit.assert_called_once()
 
     assert banco == (3,'mini pekka',5000)
+    
+def test_atualizar_imovel():
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    
+    banco= banco = atualizar_imovel(mock_conn,3,'mini pekka',5000)
+    
+    mock_cursor.execute.assert_called_once_with(
+        "UPDATE INTO imoveis (id, proprietario, valor) VALUES (?, ?, ?)",
+        (3, "mini pekka", 5000)
+    ) 
+    
+def test_remover_imovel():
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    
+    banco= remover_imovel(mock_conn,3,'mini pekka',5000)
+    
+    mock_cursor.execute.assert_called_once_with(
+        "DELETE FROM imoveis WHERE id= ? AND proprietario = ?  AND valor= ?" ,
+        (3, "mini pekka", 5000)
+        )
+    
+def test_lista_atributo():
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    
+    banco = lista_atributo(mock_conn)
+    
+    mock_cursor.execute.assert_called_once_with(
+            "SELECT * FROM IMOVEIS GROUP BY tipos_logradouro"
+    )
+    
+def test_lista_cidade():
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    
+    banco = lista_cidade(mock_conn)
+    
+    mock_cursor.execute.assert_called_once_with(
+            "SELECT * FROM IMOVEIS GROUP BY cidade"
+    )
