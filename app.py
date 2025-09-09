@@ -95,4 +95,3 @@ if __name__ == "__main__":
     print("Conectando-se ao DB apenas quando necessário…")
     app.run(debug=True)
 
-# db uri mysql://avnadmin:AVNS_u_gBBUfm-q-BTx9ochl@imoveis-gabrielchavesaguiar-6e57.d.aivencloud.com:16428/defaultdb?ssl-mode=REQUIRED
