@@ -98,6 +98,3 @@ def test_lista_cidade():
     mock_cursor.execute.assert_called_once_with(
         "SELECT * FROM imoveis GROUP BY cidade"
     )
-
-
-
