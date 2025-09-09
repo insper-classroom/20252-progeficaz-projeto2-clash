@@ -1,9 +1,8 @@
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify , redirect
 import mysql.connector
 from dotenv import load_dotenv
 load_dotenv()
-
 
 app = Flask(__name__)
 
@@ -22,16 +21,41 @@ def get_connection():
     )
 
 def listar_banco(conn):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM imoveis.imoveis")
-    rows = cur.fetchall()
-    cur.close()
-    return [list(row)for row in rows]
+    """
+    Busca todos os imóveis no banco de dados e retorna uma LISTA DE DICIONÁRIOS.
+    """
+    cursor = conn.cursor(dictionary = True) 
+    
+    query = """
+        SELECT 
+            id, logradouro, tipo_logradouro, bairro, cidade, 
+            cep, tipo, valor, data_aquisicao 
+        FROM imoveis.imoveis
+    """
+    
+    cursor.execute(query)
+    
+    rows = cursor.fetchall()
+    
+    cursor.close()
+    
+    return rows
 
 def listar_banco_por_id(conn, id_):
-    cur = conn.cursor()
-    cur.execute("SELECT * valor FROM imoveis.imoveis WHERE id = %s", (id_,))
-    row = cur.fetchone()
+    '''
+    Busca o imóvel com o id condizente 
+    '''
+    
+    query = """
+        SELECT 
+            id, logradouro, tipo_logradouro, bairro, cidade, 
+            cep, tipo, valor, data_aquisicao 
+        FROM imoveis.imoveis
+        WHERE id = %s
+    """
+    cur = conn.cursor(dictionary = True)
+    cur.execute(query, (id_,))
+    row = cur.fetchall()
     cur.close()
     return row
 
@@ -82,7 +106,7 @@ def lista_cidade(conn):
 def index():
     return render_template("index.html")
 
-@app.route("/listar_banco", methods=["GET"])
+@app.route("/imoveis", methods=["GET"])
 def listar_banco_route():
     conn = get_connection()
     try:
@@ -90,8 +114,18 @@ def listar_banco_route():
         return jsonify(rows)
     finally:
         conn.close()
+        
+        
+@app.route("/imoveis/<int:id>" , methods =["GET"])
+def listar_banco_id_route(id):
+    conn = get_connection()
+    try:
+        rows = listar_banco_por_id(conn , id)
+        return jsonify(rows)
+    finally:
+        conn.close()
+    
 
 if __name__ == "__main__":
     print("Conectando-se ao DB apenas quando necessário…")
     app.run(debug=True)
-
