@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, jsonify , redirect
+from flask import Flask, render_template, jsonify , redirect , request
 import mysql.connector
 from dotenv import load_dotenv
 load_dotenv()
@@ -25,20 +25,15 @@ def listar_banco(conn):
     Busca todos os imóveis no banco de dados e retorna uma LISTA DE DICIONÁRIOS.
     """
     cursor = conn.cursor(dictionary = True) 
-    
     query = """
         SELECT 
             id, logradouro, tipo_logradouro, bairro, cidade, 
             cep, tipo, valor, data_aquisicao 
         FROM imoveis.imoveis
     """
-    
     cursor.execute(query)
-    
     rows = cursor.fetchall()
-    
     cursor.close()
-    
     return rows
 
 def listar_banco_por_id(conn, id_):
@@ -53,21 +48,30 @@ def listar_banco_por_id(conn, id_):
         FROM imoveis.imoveis
         WHERE id = %s
     """
-    cur = conn.cursor(dictionary = True)
+    cur = conn.cursor(dictionary=True)
     cur.execute(query, (id_,))
-    row = cur.fetchall()
+    row = cur.fetchone()
     cur.close()
     return row
 
-def adicionar_imovel(conn, id_, proprietario, valor):
+@app.route("/imoveis", methods=["POST"])
+def adicionar_imovel():
+    conn = get_connection()
+    data = request.get_json()
+    id_ = data["id"]
+    bairro = data["bairro"]
+    cep = data['cep']
+    cidade = data['cidade']
+    valor = data["valor"]
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO imoveis.imoveis (id, proprietario, valor) VALUES (%s, %s, %s)",
-        (id_, proprietario, valor),
+        "INSERT INTO imoveis.imoveis (bairro, cep, cidade, valor) VALUES (%s , %s, %s, %s)",
+        (bairro,cep,cidade , valor),
     )
     conn.commit()
     cur.close()
-    return (id_, proprietario, valor)
+    conn.close()
+    return jsonify({'bairro':bairro , 'cep':cep , 'cidade':cidade, "valor": valor}), 201
 
 def atualizar_imovel(conn, id_, proprietario, valor):
     cur = conn.cursor()
