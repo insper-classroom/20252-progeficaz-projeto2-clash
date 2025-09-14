@@ -5,6 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+
 
 def get_connection():
     return mysql.connector.connect(
@@ -99,16 +105,14 @@ def lista_atributo(conn):
     cur.close()
     return rows
 
-def lista_cidade(conn):
+def listar_cidade(conn):
     cur = conn.cursor()
     cur.execute("SELECT * FROM imoveis.imoveis GROUP BY cidade")
     rows = cur.fetchall()
     cur.close()
     return rows
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+
 
 @app.route("/imoveis", methods=["GET"])
 def listar_banco_route():
