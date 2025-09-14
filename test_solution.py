@@ -1,15 +1,7 @@
 import pytest
 from app import app
 from unittest.mock import MagicMock , patch
-from app import (
-    listar_banco,
-    listar_banco_por_id,
-    adicionar_imovel,
-    atualizar_imovel,
-    remover_imovel,
-    lista_atributo,
-    lista_cidade,
-)
+
 MOCK_IMOVEIS = [
     {
         "bairro": "Lake Danielle",
@@ -68,13 +60,23 @@ def test_listar_banco_por_id(mock_listar_banco_id):
         assert response.get_json() == MOCK_IMOVEIS[0]
         mock_listar_banco_id.assert_called()
         
-@patch('app.listar_cidade')
+@patch('app.listar_por_cidade')
 def test_rota_listar_por_cidade(mock_listar_cidade):
     mock_listar_cidade.return_value = [MOCK_IMOVEIS[0]]
     with app.test_client() as client:
         response = client.get('/imoveis/cidade/Judymouth')
+        json = response.get_json()
+        assert response.status_code == 200
+        assert json[0][4] == 'Judymouth'
+        
+        
+
+@patch('app.listar_tipo')
+def test_rota_listar_por_tipo(mock_listar_cidade):
+    mock_listar_cidade.return_value = [MOCK_IMOVEIS[2]]
+    with app.test_client() as client:
+        response = client.get('/imoveis/tipo/apartamento')
         assert response.status_code == 200
         for imovel in response.get_json():
-            assert imovel['cidade'] == 'Judymouth'
+            assert imovel[0][6] == 'apartamento'
         mock_listar_cidade.assert_called_once()
-

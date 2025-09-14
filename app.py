@@ -97,21 +97,13 @@ def remover_imovel(conn, id_, proprietario, valor):
     conn.commit()
     cur.close()
 
+
 def lista_atributo(conn):
     cur = conn.cursor()
     cur.execute("SELECT * FROM imoveis.imoveis GROUP BY tipos_logradouro")
     rows = cur.fetchall()
     cur.close()
     return rows
-
-def listar_cidade(conn):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM imoveis.imoveis GROUP BY cidade")
-    rows = cur.fetchall()
-    cur.close()
-    return rows
-
-
 
 @app.route("/imoveis", methods=["GET"])
 def listar_banco_route():
