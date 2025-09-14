@@ -54,24 +54,6 @@ def listar_banco_por_id(conn, id_):
     cur.close()
     return row
 
-@app.route("/imoveis", methods=["POST"])
-def adicionar_imovel():
-    conn = get_connection()
-    data = request.get_json()
-    id_ = data["id"]
-    bairro = data["bairro"]
-    cep = data['cep']
-    cidade = data['cidade']
-    valor = data["valor"]
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO imoveis.imoveis (bairro, cep, cidade, valor) VALUES (%s , %s, %s, %s)",
-        (bairro,cep,cidade , valor),
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'bairro':bairro , 'cep':cep , 'cidade':cidade, "valor": valor}), 201
 
 def atualizar_imovel(conn, id_, proprietario, valor):
     cur = conn.cursor()
@@ -106,6 +88,8 @@ def lista_cidade(conn):
     cur.close()
     return rows
 
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -128,6 +112,7 @@ def listar_banco_id_route(id):
         return jsonify(rows)
     finally:
         conn.close()
+        
     
 
 if __name__ == "__main__":

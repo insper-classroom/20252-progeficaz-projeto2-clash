@@ -1,6 +1,7 @@
 import pytest
 from app import app
 from unittest.mock import MagicMock , patch
+import requests
 from app import (
     listar_banco,
     listar_banco_por_id,
@@ -69,6 +70,37 @@ def test_listar_banco_por_id(mock_listar_banco_id):
         mock_listar_banco_id.assert_called()
     
     
+def test_adicionar_imovel():
+    payload = {
+        "bairro": "Mooca",
+        "cep": "51116",
+        "cidade": "São Paulo",
+        "data_aquisicao": "2020-04-24",
+        "logradouro": "Taylor Ranch",
+        "tipo": "apartamento",
+        "tipo_logradouro": "Avenida",
+        "valor": 815970.0
+    }
+
+    response = requests.post("http://localhost:5000/imoveis", json=payload)
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert "id" in data
+    assert isinstance(data["id"], int)  
+    assert data["bairro"] == payload["bairro"]
+    assert data["cidade"] == payload["cidade"]
+    assert data["valor"] == payload["valor"]
+    assert data["tipo"] == payload["tipo"]
+
+
+
+
+
+
+
 
 
 # def test_adicionar_imovel():
@@ -85,25 +117,14 @@ def test_listar_banco_por_id(mock_listar_banco_id):
 #     mock_conn.commit.assert_called_once()
 #     assert banco == (3,'mini pekka',5000)
 
-@patch('app.adicionar_imovel')
-def test_rota_adicionar_imovel(mock_adicionar_imovel):
-    esperado = (
-        MOCK_IMOVEIS[2]['id'],
-        MOCK_IMOVEIS[2]['logradouro'],
-        MOCK_IMOVEIS[2]['valor']
-    )
-    mock_adicionar_imovel.return_value = esperado
 
-    with app.test_client() as client:
-        payload = {
-            "id": MOCK_IMOVEIS[2]['id'],
-            "logradouro": MOCK_IMOVEIS[2]['logradouro'],
-            "valor": MOCK_IMOVEIS[2]['valor']
-        }
-        response = client.post('/imoveis', json=payload)
-        assert response.status_code == 200 
-        assert response.get_json() == list(esperado) or response.get_json() == esperado
-        mock_adicionar_imovel.assert_called_once()
+
+
+
+
+
+
+
 
 # Teste para mockar a função e testar a rota POST /imoveis/<id>
 @patch('app.atualizar_imovel')
