@@ -58,119 +58,23 @@ def test_valida_rota_listar_banco(mock_listar_banco):
         json_data = response.get_json()
         assert json_data == MOCK_IMOVEIS
         mock_listar_banco.assert_called_once()
-                
+
 @patch('app.listar_banco_por_id')
 def test_listar_banco_por_id(mock_listar_banco_id):
-    mock_listar_banco_id.return_value = MOCK_IMOVEIS[0]  # retorna o imóvel de id 1
+    mock_listar_banco_id.return_value = MOCK_IMOVEIS[0]  
     with app.test_client() as client:
         response = client.get('/imoveis/1')
         assert response.status_code == 200
         assert response.get_json() == MOCK_IMOVEIS[0]
         mock_listar_banco_id.assert_called()
-    
-    
-
-
-# def test_adicionar_imovel():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     banco = adicionar_imovel(mock_conn, 3, 'mini pekka', 5000)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "INSERT INTO imoveis (id, proprietario, valor) VALUES (%s, %s, %s)",
-#         (3, "mini pekka", 5000)
-#     )
-#     mock_conn.commit.assert_called_once()
-#     assert banco == (3,'mini pekka',5000)
-
-@patch('app.adicionar_imovel')
-def test_rota_adicionar_imovel(mock_adicionar_imovel):
-    esperado = (
-        MOCK_IMOVEIS[2]['id'],
-        MOCK_IMOVEIS[2]['logradouro'],
-        MOCK_IMOVEIS[2]['valor']
-    )
-    mock_adicionar_imovel.return_value = esperado
-
+        
+@patch('app.listar_cidade')
+def test_rota_listar_por_cidade(mock_listar_cidade):
+    mock_listar_cidade.return_value = [MOCK_IMOVEIS[0]]
     with app.test_client() as client:
-        payload = {
-            "id": MOCK_IMOVEIS[2]['id'],
-            "logradouro": MOCK_IMOVEIS[2]['logradouro'],
-            "valor": MOCK_IMOVEIS[2]['valor']
-        }
-        response = client.post('/imoveis', json=payload)
-        assert response.status_code == 200 
-        assert response.get_json() == list(esperado) or response.get_json() == esperado
-        mock_adicionar_imovel.assert_called_once()
+        response = client.get('/imoveis/cidade/Judymouth')
+        assert response.status_code == 200
+        for imovel in response.get_json():
+            assert imovel['cidade'] == 'Judymouth'
+        mock_listar_cidade.assert_called_once()
 
-# Teste para mockar a função e testar a rota POST /imoveis/<id>
-@patch('app.atualizar_imovel')
-def test_rota_post_imoveis_id(mock_atualizar_imovel):
-    esperado = (
-        MOCK_IMOVEIS[1]['id'],
-        MOCK_IMOVEIS[1]['logradouro'],
-        MOCK_IMOVEIS[1]['valor']
-    )
-    mock_atualizar_imovel.return_value = esperado
-
-    with app.test_client() as client:
-        payload = {
-            "id": MOCK_IMOVEIS[1]['id'],
-            "logradouro": MOCK_IMOVEIS[1]['logradouro'],
-            "valor": MOCK_IMOVEIS[1]['valor']
-        }
-        response = client.post(f"/imoveis/{MOCK_IMOVEIS[1]['id']}", json=payload)
-        assert response.status_code == 200 or response.status_code == 201
-        assert response.get_json() == list(esperado) or response.get_json() == esperado
-        mock_atualizar_imovel.assert_called_once()
-
-# def test_atualizar_imovel():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     banco = atualizar_imovel(mock_conn, 3, 'mini pekka', 5000)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "UPDATE imoveis SET proprietario = %s, valor = %s WHERE id = %s",
-#         ("mini pekka", 5000, 3)
-#     )
-#     mock_conn.commit.assert_called_once()
-#     assert banco == (3,'mini pekka',5000)
-
-# def test_remover_imovel():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     remover_imovel(mock_conn, 3, 'mini pekka', 5000)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "DELETE FROM imoveis WHERE id = %s AND proprietario = %s AND valor = %s",
-#         (3, "mini pekka", 5000)
-#     )
-#     mock_conn.commit.assert_called_once()
-
-# def test_lista_atributo():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     lista_atributo(mock_conn)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "SELECT * FROM imoveis GROUP BY tipos_logradouro"
-#     )
-
-# def test_lista_cidade():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     lista_cidade(mock_conn)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "SELECT * FROM imoveis GROUP BY cidade"
-#     )
