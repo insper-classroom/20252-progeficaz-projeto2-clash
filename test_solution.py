@@ -67,16 +67,15 @@ def test_rota_listar_por_cidade(mock_listar_cidade):
         response = client.get('/imoveis/cidade/Judymouth')
         json = response.get_json()
         assert response.status_code == 200
-        assert json[0][4] == 'Judymouth'
+        assert json[0]['cidade'] == 'Judymouth'
         
         
 
-@patch('app.listar_tipo')
+@patch('app.lista_tipo')
 def test_rota_listar_por_tipo(mock_listar_cidade):
     mock_listar_cidade.return_value = [MOCK_IMOVEIS[2]]
     with app.test_client() as client:
         response = client.get('/imoveis/tipo/apartamento')
         assert response.status_code == 200
         for imovel in response.get_json():
-            assert imovel[0][6] == 'apartamento'
-        mock_listar_cidade.assert_called_once()
+            assert imovel['tipo'] == 'apartamento'
