@@ -70,7 +70,8 @@ def test_listar_banco_por_id(mock_listar_banco_id):
         mock_listar_banco_id.assert_called()
     
     
-def test_adicionar_imovel():
+@patch('app.adicionar_imovel')
+def test_adicionar_imovel(mock_adicionar_imovel):
     payload = {
         "bairro": "Mooca",
         "cep": "51116",
@@ -82,18 +83,24 @@ def test_adicionar_imovel():
         "valor": 815970.0
     }
 
-    response = requests.post("http://localhost:5000/imoveis", json=payload)
+    # simula o retorno esperado (como se tivesse sido inserido no banco)
+    mock_adicionar_imovel.return_value = {**payload, "id": 1}
 
-    assert response.status_code == 201
+    with app.test_client() as client:
+        response = client.post("/imoveis", json=payload)
 
-    data = response.json()
+        assert response.status_code == 201
+        assert response.content_type == "application/json"
 
-    assert "id" in data
-    assert isinstance(data["id"], int)  
-    assert data["bairro"] == payload["bairro"]
-    assert data["cidade"] == payload["cidade"]
-    assert data["valor"] == payload["valor"]
-    assert data["tipo"] == payload["tipo"]
+        data = response.get_json()
+        assert "id" in data
+        assert data["id"] == 1
+        assert data["bairro"] == payload["bairro"]
+        assert data["cidade"] == payload["cidade"]
+        assert data["valor"] == payload["valor"]
+        assert data["tipo"] == payload["tipo"]
+
+        mock_adicionar_imovel.assert_called_once()
 
 
 

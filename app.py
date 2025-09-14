@@ -88,7 +88,30 @@ def lista_cidade(conn):
     cur.close()
     return rows
 
-
+def adicionar_imovel(conn, data):
+    cur = conn.cursor()
+    query = """
+        INSERT INTO imoveis.imoveis 
+            (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    cur.execute(
+        query,
+        (
+            data["logradouro"],
+            data["tipo_logradouro"],
+            data["bairro"],
+            data["cidade"],
+            data["cep"],
+            data["tipo"],
+            data["valor"],
+            data["data_aquisicao"],
+        ),
+    )
+    conn.commit()
+    new_id = cur.lastrowid
+    cur.close()
+    return {**data, "id": new_id}
 
 @app.route("/")
 def index():
@@ -113,6 +136,15 @@ def listar_banco_id_route(id):
     finally:
         conn.close()
         
+@app.route("/imoveis", methods=["POST"])
+def adicionar_imovel_route():
+    data = request.json
+    conn = get_connection()
+    try:
+        novo_imovel = adicionar_imovel(conn, data)
+        return jsonify(novo_imovel), 201
+    finally:
+        conn.close()
     
 
 if __name__ == "__main__":
