@@ -60,7 +60,6 @@ def listar_banco_por_id(conn, id_):
     cur.close()
     return row
 
-@app.route("/imoveis", methods=["POST"])
 def adicionar_imovel():
     conn = get_connection()
     data = request.get_json()
@@ -133,7 +132,17 @@ def listar_banco_id_route(id):
     finally:
         conn.close()
     
-
+@app.route('/imoveis/cidade/<nome_cidade>', methods = ['GET'])
+def listar_por_cidade(nome_cidade):
+    conn = get_connection()
+    cur = conn.cursor()
+    query = "SELECT * FROM imoveis.imoveis WHERE cidade = %s"
+    cur.execute(query , (nome_cidade,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify(rows)
 if __name__ == "__main__":
     print("Conectando-se ao DB apenas quando necessário…")
     app.run(debug=True)
+# Stewartton
