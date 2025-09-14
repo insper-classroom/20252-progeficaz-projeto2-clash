@@ -146,6 +146,11 @@ def atualizar_imovel(conn, id_, data):
     cur.close()
     return {**data, "id": id_}
 
+def remover_imovel(conn, id_):
+    cur = conn.cursor()
+    cur.execute("DELETE FROM imoveis.imoveis WHERE id = %s", (id_,))
+    conn.commit()
+    cur.close()
 
 
 
@@ -192,7 +197,16 @@ def atualizar_imovel_route(id):
     finally:
         conn.close()
 
-       
+@app.route("/imoveis/<int:id>", methods=["DELETE"])
+def remover_imovel_route(id):
+    conn = get_connection()
+    try:
+        remover_imovel(conn, id)
+        # Sem conteúdo na resposta → 204 No Content
+        return "", 204
+    finally:
+        conn.close()
+
     
 
 if __name__ == "__main__":
