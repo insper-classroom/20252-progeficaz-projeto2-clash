@@ -124,47 +124,18 @@ def test_atualizar_imovel(mock_atualizar_imovel):
 
         mock_atualizar_imovel.assert_called_once()
 
+@patch('app.remover_imovel')
+def test_remover_imovel(mock_remover_imovel):
+    mock_remover_imovel.return_value = None  # delete não retorna nada
+
+    with app.test_client() as client:
+        response = client.delete("/imoveis/1")
+
+        # status deve indicar sucesso sem conteúdo
+        assert response.status_code == 204
+        # corpo da resposta deve estar vazio
+        assert response.data == b''
+
+        mock_remover_imovel.assert_called_once()
 
 
-
-
-
-
-
-
-
-
-# def test_remover_imovel():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     remover_imovel(mock_conn, 3, 'mini pekka', 5000)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "DELETE FROM imoveis WHERE id = %s AND proprietario = %s AND valor = %s",
-#         (3, "mini pekka", 5000)
-#     )
-#     mock_conn.commit.assert_called_once()
-
-# def test_lista_atributo():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     lista_atributo(mock_conn)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "SELECT * FROM imoveis GROUP BY tipos_logradouro"
-#     )
-
-# def test_lista_cidade():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     lista_cidade(mock_conn)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "SELECT * FROM imoveis GROUP BY cidade"
-#     )
