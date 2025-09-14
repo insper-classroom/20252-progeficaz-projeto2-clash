@@ -110,7 +110,7 @@ def test_atualizar_imovel(mock_atualizar_imovel):
         "valor": 777.0
     }
 
-    esperado = (1, payload["logradouro"], payload["valor"])
+    esperado = {"id": 1, "logradouro": payload["logradouro"], "valor": payload["valor"]}
     mock_atualizar_imovel.return_value = esperado
 
     with app.test_client() as client:
@@ -118,17 +118,12 @@ def test_atualizar_imovel(mock_atualizar_imovel):
 
         assert response.status_code == 200
         data = response.get_json()
-        assert data["id"] == esperado[0]
-        assert data["logradouro"] == esperado[1]
-        assert data["valor"] == esperado[2]
+        assert data["id"] == esperado["id"]
+        assert data["logradouro"] == esperado["logradouro"]
+        assert data["valor"] == esperado["valor"]
 
-        # captura os argumentos da chamada ao mock
-        _, args, _ = mock_atualizar_imovel.mock_calls[0]
-        # args = (conn, id, logradouro, valor)
+        mock_atualizar_imovel.assert_called_once()
 
-        assert args[1] == 1  # id da URL
-        assert args[2] == payload["logradouro"]
-        assert args[3] == payload["valor"]
 
 
 

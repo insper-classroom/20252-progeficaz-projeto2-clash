@@ -113,6 +113,42 @@ def adicionar_imovel(conn, data):
     cur.close()
     return {**data, "id": new_id}
 
+def atualizar_imovel(conn, id_, data):
+    
+    cur = conn.cursor()
+    query = """
+        UPDATE imoveis.imoveis
+        SET logradouro = %s,
+            tipo_logradouro = %s,
+            bairro = %s,
+            cidade = %s,
+            cep = %s,
+            tipo = %s,
+            valor = %s,
+            data_aquisicao = %s
+        WHERE id = %s
+    """
+    cur.execute(
+        query,
+        (
+            data["logradouro"],
+            data["tipo_logradouro"],
+            data["bairro"],
+            data["cidade"],
+            data["cep"],
+            data["tipo"],
+            data["valor"],
+            data["data_aquisicao"],
+            id_,
+        ),
+    )
+    conn.commit()
+    cur.close()
+    return {**data, "id": id_}
+
+
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -145,6 +181,18 @@ def adicionar_imovel_route():
         return jsonify(novo_imovel), 201
     finally:
         conn.close()
+
+@app.route("/imoveis/<int:id>", methods=["POST", "PUT"])
+def atualizar_imovel_route(id):
+    data = request.json
+    conn = get_connection()
+    try:
+        atualizado = atualizar_imovel(conn, id, data)
+        return jsonify(atualizado), 200
+    finally:
+        conn.close()
+
+       
     
 
 if __name__ == "__main__":
