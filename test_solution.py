@@ -103,70 +103,41 @@ def test_adicionar_imovel(mock_adicionar_imovel):
         mock_adicionar_imovel.assert_called_once()
 
 
-
-
-
-
-
-
-
-# def test_adicionar_imovel():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
-
-#     banco = adicionar_imovel(mock_conn, 3, 'mini pekka', 5000)
-
-#     mock_cursor.execute.assert_called_once_with(
-#         "INSERT INTO imoveis (id, proprietario, valor) VALUES (%s, %s, %s)",
-#         (3, "mini pekka", 5000)
-#     )
-#     mock_conn.commit.assert_called_once()
-#     assert banco == (3,'mini pekka',5000)
-
-
-
-
-
-
-
-
-
-
-# Teste para mockar a função e testar a rota POST /imoveis/<id>
 @patch('app.atualizar_imovel')
-def test_rota_post_imoveis_id(mock_atualizar_imovel):
-    esperado = (
-        MOCK_IMOVEIS[1]['id'],
-        MOCK_IMOVEIS[1]['logradouro'],
-        MOCK_IMOVEIS[1]['valor']
-    )
+def test_atualizar_imovel(mock_atualizar_imovel):
+    payload = {
+        "logradouro": "Rua da Mooca",
+        "valor": 777.0
+    }
+
+    esperado = (1, payload["logradouro"], payload["valor"])
     mock_atualizar_imovel.return_value = esperado
 
     with app.test_client() as client:
-        payload = {
-            "id": MOCK_IMOVEIS[1]['id'],
-            "logradouro": MOCK_IMOVEIS[1]['logradouro'],
-            "valor": MOCK_IMOVEIS[1]['valor']
-        }
-        response = client.post(f"/imoveis/{MOCK_IMOVEIS[1]['id']}", json=payload)
-        assert response.status_code == 200 or response.status_code == 201
-        assert response.get_json() == list(esperado) or response.get_json() == esperado
-        mock_atualizar_imovel.assert_called_once()
+        response = client.post("/imoveis/1", json=payload)
 
-# def test_atualizar_imovel():
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
-#     mock_conn.cursor.return_value = mock_cursor
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["id"] == esperado[0]
+        assert data["logradouro"] == esperado[1]
+        assert data["valor"] == esperado[2]
 
-#     banco = atualizar_imovel(mock_conn, 3, 'mini pekka', 5000)
+        # captura os argumentos da chamada ao mock
+        _, args, _ = mock_atualizar_imovel.mock_calls[0]
+        # args = (conn, id, logradouro, valor)
 
-#     mock_cursor.execute.assert_called_once_with(
-#         "UPDATE imoveis SET proprietario = %s, valor = %s WHERE id = %s",
-#         ("mini pekka", 5000, 3)
-#     )
-#     mock_conn.commit.assert_called_once()
-#     assert banco == (3,'mini pekka',5000)
+        assert args[1] == 1  # id da URL
+        assert args[2] == payload["logradouro"]
+        assert args[3] == payload["valor"]
+
+
+
+
+
+
+
+
+
 
 # def test_remover_imovel():
 #     mock_conn = MagicMock()
