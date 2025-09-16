@@ -29,9 +29,6 @@ def get_connection():
 
 
 def listar_banco(conn):
-    """
-    Busca todos os imóveis no banco de dados e retorna uma LISTA DE DICIONÁRIOS.
-    """
     cursor = conn.cursor(dictionary=True)
     query = """
         SELECT 
@@ -46,9 +43,6 @@ def listar_banco(conn):
 
 
 def listar_banco_por_id(conn, id_):
-    """
-    Busca o imóvel com o id condizente.
-    """
     query = """
         SELECT 
             id, logradouro, tipo_logradouro, bairro, cidade, 
@@ -142,7 +136,10 @@ def listar_banco_route():
     conn = get_connection()
     try:
         rows = listar_banco(conn)
-        return jsonify(rows)
+        if rows:
+            return jsonify(rows), 200
+        else:
+            return jsonify({'erro': 'Nenhum imóvel encontrado'}), 404
     finally:
         conn.close()
 
@@ -152,7 +149,10 @@ def listar_banco_id_route(id):
     conn = get_connection()
     try:
         row = listar_banco_por_id(conn, id)
-        return jsonify(row)
+        if row:
+            return jsonify(row), 200
+        else:
+            return jsonify({'erro': 'Imóvel não encontrado'}), 404
     finally:
         conn.close()
 
@@ -184,7 +184,7 @@ def remover_imovel_route(id):
     conn = get_connection()
     try:
         remover_imovel(conn, id)
-        return "", 204  # Sem conteúdo na resposta
+        return "", 204
     finally:
         conn.close()
 
@@ -197,7 +197,10 @@ def lista_tipo(tipo):
     rows = cur.fetchall()
     cur.close()
     conn.close()
-    return jsonify(rows)
+    if rows:
+        return jsonify(rows), 200
+    else:
+        return jsonify({'erro': 'Imóvel não encontrado'}), 404
 
 
 @app.route("/imoveis/cidade/<nome_cidade>", methods=["GET"])
@@ -209,7 +212,10 @@ def listar_por_cidade(nome_cidade):
     rows = cur.fetchall()
     cur.close()
     conn.close()
-    return jsonify(rows)
+    if rows:
+        return jsonify(rows), 200
+    else:
+        return jsonify({'erro': 'Imóvel não encontrado'}), 404
 
 
 if __name__ == "__main__":
