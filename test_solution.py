@@ -8,7 +8,6 @@ from app import (
     adicionar_imovel,
     atualizar_imovel,
     remover_imovel,
-    lista_atributo,
     lista_cidade,
 )
 
@@ -56,7 +55,10 @@ def test_valida_rota_listar_banco(mock_listar_banco):
         assert response.status_code == 200
         assert response.content_type == 'application/json'
         json_data = response.get_json()
-        assert json_data == MOCK_IMOVEIS
+        imoveis = json_data['_embedded']['imoveis']
+        for i, imovel in enumerate(imoveis):
+            for campo in MOCK_IMOVEIS[i]:
+                assert imovel[campo] == MOCK_IMOVEIS[i][campo]
         mock_listar_banco.assert_called_once()
 
 
@@ -66,7 +68,9 @@ def test_listar_banco_por_id(mock_listar_banco_id):
     with app.test_client() as client:
         response = client.get('/imoveis/1')
         assert response.status_code == 200
-        assert response.get_json() == MOCK_IMOVEIS[0]
+        json_data = response.get_json()
+        for campo in MOCK_IMOVEIS[0]:
+            assert json_data[campo] == MOCK_IMOVEIS[0][campo]
         mock_listar_banco_id.assert_called()
 
 
@@ -141,9 +145,10 @@ def test_rota_listar_por_cidade(mock_listar_cidade):
     mock_listar_cidade.return_value = [MOCK_IMOVEIS[0]]
     with app.test_client() as client:
         response = client.get('/imoveis/cidade/Judymouth')
-        json = response.get_json()
+        json_data = response.get_json()
         assert response.status_code == 200
-        assert json[0]['cidade'] == 'Judymouth'
+        imoveis = json_data['_embedded']['imoveis']
+        assert imoveis[0]['cidade'] == 'Judymouth'
 
 
 @patch('app.lista_tipo')
@@ -152,5 +157,7 @@ def test_rota_listar_por_tipo(mock_listar_cidade):
     with app.test_client() as client:
         response = client.get('/imoveis/tipo/apartamento')
         assert response.status_code == 200
-        for imovel in response.get_json():
+        json_data = response.get_json()
+        imoveis = json_data['_embedded']['imoveis']
+        for imovel in imoveis:
             assert imovel['tipo'] == 'apartamento'
