@@ -103,15 +103,22 @@ def lista_tipo(tipo):
     cur = conn.cursor(dictionary= True)
     cur.execute("SELECT * FROM imoveis.imoveis WHERE tipo = %s" , (tipo,))
     rows = cur.fetchall()
-    cur.close()
-    return rows
+    if rows:
+        return jsonify(rows) , 200
+    else:
+        return jsonify({'Erro' : 'Imóvel não encontrado'})
+    
+
 
 @app.route("/imoveis", methods=["GET"])
 def listar_banco_route():
     conn = get_connection()
     try:
         rows = listar_banco(conn)
-        return jsonify(rows)
+        if rows:
+            return jsonify(rows) , 200
+        else:
+            return jsonify({'Erros' : 'imóvel não encontrado'})
     finally:
         conn.close()
         
@@ -121,20 +128,39 @@ def listar_banco_id_route(id):
     conn = get_connection()
     try:
         rows = listar_banco_por_id(conn , id)
-        return jsonify(rows)
+        if rows:
+            return jsonify(rows) , 200
+        else:
+            return jsonify({'erro' : 'Imóvel não encontrado'}) , 404            
+            
     finally:
         conn.close()
     
 @app.route('/imoveis/cidade/<nome_cidade>', methods = ['GET'])
 def listar_por_cidade(nome_cidade):
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary= True)
+
+        cur.execute("SELECT * FROM imoveis.imoveis WHERE cidade = %s" , (nome_cidade,))
+        rows = cur.fetchall()
+        if rows:
+            return jsonify(rows) , 200
+        else:
+            return jsonify({'Erro' : 'Imóvel não encontrado'})
+    finally:
+        conn.close()
+
+
+
+
+def lista_tipo(tipo):
     conn = get_connection()
     cur = conn.cursor(dictionary= True)
-    query = "SELECT * FROM imoveis.imoveis WHERE cidade = %s"
-    cur.execute(query , (nome_cidade,))
+    cur.execute("SELECT * FROM imoveis.imoveis WHERE tipo = %s" , (tipo,))
     rows = cur.fetchall()
     cur.close()
-    conn.close()
-    return jsonify(rows)
+    return rows
 if __name__ == "__main__":
     print("Conectando-se ao DB apenas quando necessário…")
     app.run(debug=True)
